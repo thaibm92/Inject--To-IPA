@@ -108,8 +108,8 @@ jobs:
         id: prepare_youtube_music
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa
-          wget "$YOUTUBE_PREMIUM_DEB_URL" --no-verbose -O main/YouTubePreminum.deb
-          wget "$YOUPIP_DEB_URL" --no-verbose -O main/YouPIP.deb
+          wget "$YOUTUBE_PREMIUM_DEB_URL" --no-verbose -O main/packages/YouTubePreminum.deb
+          wget "$YOUPIP_DEB_URL" --no-verbose -O main/packages/YouPIP.deb
         env:
           YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}    
           YOUTUBE_PREMIUM_DEB_URL: ${{ inputs.deb_youtubepremium_url }}    
