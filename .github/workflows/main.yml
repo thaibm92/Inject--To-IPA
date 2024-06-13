@@ -118,10 +118,8 @@ jobs:
       - name: Inject tweak into provided IPA
         run: |
           brew install coreutils
-          cd ${{ github.workspace }}/main/packages
-          tweakName=$(ls | grep -v '\.gitkeep')
           cd ${{ github.workspace }}/main
-          ./Azule/azule -i $PWD/YouTube.ipa -o $PWD/packages/YouTubePremium.ipa -f $PWD/packages/$tweakName 
+          ./Azule/azule -i $PWD/YouTube.ipa -o $PWD/packages/YouTubePremium.ipa -f $PWD/packages/YouTubePreminum.deb $PWD/packages/YouPIP.deb.deb
 
       - name: Remove the Watch folder
         run: |
