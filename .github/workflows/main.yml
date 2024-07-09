@@ -50,6 +50,17 @@ on:
         required: false
         type: boolean
 
+      remove_watch:
+        description: "Remove Watch folder?"
+        default: true
+        required: false
+        type: boolean
+
+      remove_plugins:
+        description: "Remove PlugIns folder?"
+        default: true
+        required: false
+        type: boolean
       
   
 concurrency:
