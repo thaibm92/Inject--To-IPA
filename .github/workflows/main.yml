@@ -124,21 +124,47 @@ jobs:
           git clone https://github.com/Al4ise/Azule 
           sudo ln -sf ~/Azule/azule /usr/local/bin/azule
 
-      - name: Downloading IPA & DEBs
+      - name: Downloading IPA
         run: |
-          wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa
-          wget "$YOUTUBE_PREMIUM_DEB_URL" --no-verbose -O main/packages/YouTubePreminum.deb
-          wget "$YOUPIP_DEB_URL" --no-verbose -O main/packages/YouPIP.deb
+          wget "$IPA_URL" --no-verbose -O main/IPA.ipa
         env:
-          YOUTUBE_URL: ${{ inputs.decrypted_youtube_url }}    
-          YOUTUBE_PREMIUM_DEB_URL: ${{ inputs.deb_youtubepremium_url }}    
-          YOUPIP_DEB_URL: ${{ inputs. deb_youpip_url }}    
-
+          IPA_URL: ${{ inputs.decrypted_ipa_url }}
+      
+      - name: Downloading DEB1
+        if: ${{ inputs.deb1_url_choose }}
+        run: |
+          wget "$DEB1_URL" --no-verbose -O main/packages/DEB1.deb
+        env:
+          DEB1_URL: ${{ inputs.deb1_url }}
+      
+      - name: Downloading DEB2
+        if: ${{ inputs.deb2_url_choose }}
+        run: |
+          wget "$DEB2_URL" --no-verbose -O main/packages/DEB2.deb
+        env:
+          DEB2_URL: ${{ inputs.deb2_url }}
+      
+      - name: Downloading DEB3
+        if: ${{ inputs.deb3_url_choose }}
+        run: |
+          wget "$DEB3_URL" --no-verbose -O main/packages/DEB3.deb
+        env:
+          DEB3_URL: ${{ inputs.deb3_url }}  
+          
+      - name: Build DEB_FILES variable
+        id: build_deb_files
+        run: |
+          DEB_FILES=""
+          if [[ -f "main/packages/DEB1.deb" ]]; then DEB_FILES="$DEB_FILES -f main/packages/DEB1.deb"; fi
+          if [[ -f "main/packages/DEB2.deb" ]]; then DEB_FILES="$DEB_FILES -f main/packages/DEB2.deb"; fi
+          if [[ -f "main/packages/DEB3.deb" ]]; then DEB_FILES="$DEB_FILES -f main/packages/DEB3.deb"; fi
+          echo "DEB_FILES=$DEB_FILES" >> $GITHUB_ENV
+      
       - name: Inject tweak into provided IPA
         run: |
           brew install coreutils
           cd ${{ github.workspace }}/main
-          ./Azule/azule -i $PWD/YouTube.ipa -o $PWD/packages/YouTubePremium.ipa -f $PWD/packages/YouTubePreminum.deb $PWD/packages/YouPIP.deb
+          ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa ${{ env.DEB_FILES }}
 
       - name: Remove the Watch folder
         run: |
