@@ -174,10 +174,16 @@ jobs:
         run: |
           mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
           unzip -q main/packages/IPA_OUT.zip -d main/packages
-          ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "main/packages/Payload/*.app/Info.plist")
-          echo "==> $ipa_name Unziped!"
-          echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
-          rm -rf main/packages/Payload/YouTube.app/_CodeSignature/CodeResources
+          info_plist=$(find main/packages/Payload/*.app -name "Info.plist" | head -1)
+          if [ -n "$info_plist" ]; then
+            ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "$info_plist")
+            echo "==> $ipa_name Unzipped!"
+            echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
+            rm -f main/packages/Payload/*.app/_CodeSignature/CodeResources
+          else
+            echo "Error: Info.plist not found in Payload directory."
+            exit 1
+          fi
 
       - name: Remove Watch Folder
         if: ${{ inputs.remove_watch }}
