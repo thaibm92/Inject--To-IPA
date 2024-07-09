@@ -45,7 +45,7 @@ on:
         required: false
         type: string
       deb3_url_choose:
-        description: "Using Deb 1"
+        description: "Using Deb 3"
         default: false
         required: false
         type: boolean
@@ -56,7 +56,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build YouTube Premium
+    name: Inject Deb Into IPA
     runs-on: macos-12
     permissions:
       contents: write
@@ -96,7 +96,7 @@ jobs:
       - name: Download iOS SDK
         if: steps.SDK.outputs.cache-hit != 'true'
         run: |
-          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/arichorn/sdks/
+          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/thaibm92/sdks/
           cd sdks
           git sparse-checkout set --no-cone iPhoneOS${{ inputs.sdk_version }}.sdk
           git checkout
@@ -124,8 +124,7 @@ jobs:
           git clone https://github.com/Al4ise/Azule 
           sudo ln -sf ~/Azule/azule /usr/local/bin/azule
 
-      - name: Downloading YouTube IPA & DEB
-        id: prepare_youtube_music
+      - name: Downloading IPA & DEBs
         run: |
           wget "$YOUTUBE_URL" --no-verbose -O main/YouTube.ipa
           wget "$YOUTUBE_PREMIUM_DEB_URL" --no-verbose -O main/packages/YouTubePreminum.deb
