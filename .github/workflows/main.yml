@@ -176,7 +176,7 @@ jobs:
           unzip -q main/packages/IPA_OUT.zip -d main/packages
           info_plist=$(find main/packages/Payload/*.app -name "Info.plist" | head -1)
           if [ -n "$info_plist" ]; then
-            ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "$info_plist")
+            ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleDisplayName" "$info_plist")
             echo "==> $ipa_name Unzipped!"
             echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
             rm -f main/packages/Payload/*.app/_CodeSignature/CodeResources
