@@ -164,7 +164,7 @@ jobs:
         run: |
           brew install coreutils
           cd ${{ github.workspace }}/main
-          ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f ${{ env.DEB_FILES }}
+          ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f $PWD/packages/*.deb
 
       - name: Remove the Watch folder
         run: |
