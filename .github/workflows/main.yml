@@ -12,7 +12,7 @@ on:
         type: string  
         
       decrypted_ipa_url:
-        description: "The direct URL to the decrypted YouTube ipa (I recommend using Dropbox, Google Drive is causing errors)"
+        description: "The direct URL to the decrypted IPA"
         default: "https://iosmod.net/IPAs/YouTube_19.23.3.ipa"
         required: true
         type: string
