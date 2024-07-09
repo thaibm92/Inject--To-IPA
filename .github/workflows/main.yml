@@ -1,8 +1,7 @@
 # I modified the github action from @arichornlover 's uYouEnhanced repo, but the original idea is by @ISnackable. Thanks to both of them!
 # https://github.com/ISnackable/YTCubePlus/blob/main/.github/workflows/Build.yml
 
-name: Build and Release YouTube Premium
-
+name: Inject Deb Into IPA
 on:
   workflow_dispatch:
     inputs:
@@ -12,23 +11,44 @@ on:
         required: true
         type: string  
         
-      decrypted_youtube_url:
+      decrypted_ipa_url:
         description: "The direct URL to the decrypted YouTube ipa (I recommend using Dropbox, Google Drive is causing errors)"
         default: "https://iosmod.net/IPAs/YouTube_19.23.3.ipa"
         required: true
         type: string
         
-      deb_youtubepremium_url:
-        description: "The direct URL to the YouTube deb (I recommend using Dropbox, Google Drive is causing errors)"
+      deb1_url:
+        description: "The direct URL to the Tweak deb 1"
         default: "https://iosmod.net/deb/com.iosmod.youtubepremium_1.6.6_iphoneos-arm.deb"
-        required: true
+        required: false
         type: string
+      deb1_url_choose:
+        description: "Using Deb 1"
+        default: true
+        required: false
+        type: boolean
 
-      deb_youpip_url:
-        description: "The direct URL to the YouPiP deb (I recommend using Dropbox, Google Drive is causing errors)"
+      deb2_url:
+        description: "The direct URL to the Tweak deb 2"
         default: "https://iosmod.net/deb/com.ps.youpip_1.8.10_iphoneos-arm.deb"
-        required: true
+        required: false
         type: string
+      deb2_url_choose:
+        description: "Using Deb 2"
+        default: false
+        required: false
+        type: boolean
+        
+      deb3_url:
+        description: "The direct URL to the Tweak deb 3"
+        default: "https://iosmod.net/deb/com.ps.youpip_1.8.10_iphoneos-arm.deb"
+        required: false
+        type: string
+      deb3_url_choose:
+        description: "Using Deb 1"
+        default: false
+        required: false
+        type: boolean
   
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
