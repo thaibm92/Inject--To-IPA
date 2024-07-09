@@ -154,9 +154,9 @@ jobs:
       - name: Build DEB_FILES variable
         run: |
           DEB_FILES=""
-          if [[ -f "main/packages/DEB1.deb" ]]; then DEB_FILES="$DEB_FILES -f $PWD/packages/DEB1.deb"; fi
-          if [[ -f "main/packages/DEB2.deb" ]]; then DEB_FILES="$DEB_FILES -f $PWD/packages/DEB2.deb"; fi
-          if [[ -f "main/packages/DEB3.deb" ]]; then DEB_FILES="$DEB_FILES -f $PWD/packages/DEB3.deb"; fi
+          if [[ -f "main/packages/DEB1.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB1.deb"; fi
+          if [[ -f "main/packages/DEB2.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB2.deb"; fi
+          if [[ -f "main/packages/DEB3.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB3.deb"; fi
           echo "DEB_FILES=$DEB_FILES" >> $GITHUB_ENV
           echo "$DEB_FILES"
       
@@ -164,7 +164,7 @@ jobs:
         run: |
           brew install coreutils
           cd ${{ github.workspace }}/main
-          ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa ${{ env.DEB_FILES }}
+          ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f ${{ env.DEB_FILES }}
 
       - name: Remove the Watch folder
         run: |
