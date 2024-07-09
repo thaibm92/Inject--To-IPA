@@ -49,6 +49,22 @@ on:
         default: false
         required: false
         type: boolean
+
+      upload_artifact:
+        description: "Upload Artifact"
+        default: true
+        required: false
+        type: boolean
+      upload_artifact_catbox:
+        description: "Upload Artifact to Catbox"
+        default: true
+        required: false
+        type: boolean
+      create_release:
+        description: "Create a draft release"
+        default: true
+        required: false
+        type: boolean
   
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -150,15 +166,6 @@ jobs:
           wget "$DEB3_URL" --no-verbose -O main/packages/DEB3.deb
         env:
           DEB3_URL: ${{ inputs.deb3_url }}  
-          
-      - name: Build DEB_FILES variable
-        run: |
-          DEB_FILES=""
-          if [[ -f "main/packages/DEB1.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB1.deb"; fi
-          if [[ -f "main/packages/DEB2.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB2.deb"; fi
-          if [[ -f "main/packages/DEB3.deb" ]]; then DEB_FILES="$DEB_FILES $PWD/packages/DEB3.deb"; fi
-          echo "DEB_FILES=$DEB_FILES" >> $GITHUB_ENV
-          echo "$DEB_FILES"
       
       - name: Inject tweak into provided IPA
         run: |
@@ -166,22 +173,60 @@ jobs:
           cd ${{ github.workspace }}/main
           ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f $PWD/packages/*.deb
 
-      - name: Remove the Watch folder
+      - name: Unzip IPA
+        id: unzip_ipa
         run: |
-          cd ${{ github.workspace }}/main/packages
-          mv YouTubePremium.ipa YouTubePremium.zip
-          unzip YouTubePremium.zip
-          cd Payload/YouTube.app
-          rm -rf Watch
-          cd ../..
-          zip -r YouTube_Premium_.ipa Payload
-          rm -rf Payload    
+          mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
+          unzip -q main/packages/IPA_OUT.zip -d main/packages
+          ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "main/packages/Payload/*.app/Info.plist")
+          echo "==> $ipa_name Unziped!"
+          echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
+          rm -rf main/packages/Payload/YouTube.app/_CodeSignature/CodeResources
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2.0.1
+      - name: Remove Watch Folder
+        run: |
+         cd ${{ github.workspace }}/main/packages/Payload/*.app
+         rm -rf Watch
+         echo "==> Removed Watch folder"
+
+      - name: Remove PlugIns Folder
+        run: |
+         cd ${{ github.workspace }}/main/packages/Payload/*.app
+         rm -rf PlugIns/*
+         echo "==> Removed PlugIns folder"
+
+      - name: Zip IPA
+        run: |
+         cd ${{ github.workspace }}/main/packages
+         zip -r ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Payload > /dev/null
+         echo "==> ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Ziped!"
+
+      - name: Upload Artifact
+        if: ${{ inputs.upload_artifact }}
+        uses: actions/upload-artifact@v4.3.3
         with:
-          tag_name: v${{ github.run_number }}
-          name: v${{ github.run_number }}
-          files: main/packages/*.ipa
-          draft: true
+          name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          path: |
+            main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa
+          if-no-files-found: error
+
+      - name: Upload Artifact to Catbox
+        if: ${{ inputs.upload_artifact_catbox }}
+        run: |
+          RESPONSE_IPA=$(curl -F "reqtype=fileupload" -F "fileToUpload=@main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa" https://catbox.moe/user/api.php)
+          CATBOX_URL_IPA=$(echo $RESPONSE_IPA | grep -o -E 'https://files.catbox.moe/[^"]*')
+          echo "Uploaded .ipa artifact to $CATBOX_URL_IPA"
+      
+      - name: Create Release
+        if: ${{ inputs.create_release }}
+        id: create_release
+        uses: softprops/action-gh-release@v2.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT: ${{ inputs.create_release }}
+        with:
+          tag_name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          files: |
+            main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa
+          draft: ${{ env.DRAFT }}
