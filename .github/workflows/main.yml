@@ -50,6 +50,18 @@ on:
         required: false
         type: boolean
 
+      remove_watch:
+        description: "Remove Watch folder?"
+        default: true
+        required: false
+        type: boolean
+
+      remove_plugins:
+        description: "Remove PlugIns folder?"
+        default: true
+        required: false
+        type: boolean
+
       upload_artifact:
         description: "Upload Artifact"
         default: true
@@ -184,12 +196,14 @@ jobs:
           rm -rf main/packages/Payload/YouTube.app/_CodeSignature/CodeResources
 
       - name: Remove Watch Folder
+        if: ${{ inputs.remove_watch }}
         run: |
          cd ${{ github.workspace }}/main/packages/Payload/*.app
          rm -rf Watch
          echo "==> Removed Watch folder"
 
       - name: Remove PlugIns Folder
+        if: ${{ inputs.remove_plugins }}
         run: |
          cd ${{ github.workspace }}/main/packages/Payload/*.app
          rm -rf PlugIns/*
