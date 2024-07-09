@@ -61,12 +61,6 @@ on:
         default: true
         required: false
         type: boolean
-
-      remove_plugins:
-        description: "Remove PlugIns folder?"
-        default: true
-        required: false
-        type: boolean
         
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
