@@ -185,32 +185,4 @@ jobs:
           cd ${{ github.workspace }}/main
           ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f $PWD/packages/*.deb
 
-      - name: Unzip IPA
-        id: unzip_ipa
-        run: |
-          mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
-          unzip -q main/packages/IPA_OUT.zip -d main/packages
-          ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "main/packages/Payload/*.app/Info.plist")
-          echo "==> $ipa_name Unziped!"
-          echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
-          rm -rf main/packages/Payload/YouTube.app/_CodeSignature/CodeResources
-
-      - name: Remove Watch Folder
-        if: ${{ inputs.remove_watch }}
-        run: |
-         cd ${{ github.workspace }}/main/packages/Payload/*.app
-         rm -rf Watch
-         echo "==> Removed Watch folder"
-
-      - name: Remove PlugIns Folder
-        if: ${{ inputs.remove_plugins }}
-        run: |
-         cd ${{ github.workspace }}/main/packages/Payload/*.app
-         rm -rf PlugIns/*
-         echo "==> Removed PlugIns folder"
-
-      - name: Zip IPA
-        run: |
-         cd ${{ github.workspace }}/main/packages
-         zip -r ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Payload > /dev/null
-         echo "==> ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Ziped!"
+      
