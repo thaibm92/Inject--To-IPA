@@ -159,4 +159,62 @@ jobs:
           cd ${{ github.workspace }}/main
           ./Azule/azule -i $PWD/IPA.ipa -o $PWD/packages/IPA_OUT.ipa -f $PWD/packages/*.deb
 
+      - name: Unzip IPA
+        id: unzip_ipa
+        run: |
+          mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
+          unzip -q main/packages/IPA_OUT.zip -d main/packages
+          ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "main/packages/Payload/*.app/Info.plist")
+          echo "==> $ipa_name Unziped!"
+          echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
+          rm -rf main/packages/Payload/YouTube.app/_CodeSignature/CodeResources
+
+      - name: Remove Watch Folder
+        if: ${{ inputs.remove_watch }}
+        run: |
+         cd ${{ github.workspace }}/main/packages/Payload/*.app
+         rm -rf Watch
+         echo "==> Removed Watch folder"
+
+      - name: Remove PlugIns Folder
+        if: ${{ inputs.remove_plugins }}
+        run: |
+         cd ${{ github.workspace }}/main/packages/Payload/*.app
+         rm -rf PlugIns/*
+         echo "==> Removed PlugIns folder"
+
+      - name: Zip IPA
+        run: |
+         cd ${{ github.workspace }}/main/packages
+         zip -r ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Payload > /dev/null
+         echo "==> ${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa Ziped!"
       
+      - name: Upload Artifact
+        if: ${{ inputs.upload_artifact }}
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          path: |
+            main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa
+          if-no-files-found: error
+
+      - name: Upload Artifact to Catbox
+        if: ${{ inputs.upload_artifact_catbox }}
+        run: |
+          RESPONSE_IPA=$(curl -F "reqtype=fileupload" -F "fileToUpload=@main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa" https://catbox.moe/user/api.php)
+          CATBOX_URL_IPA=$(echo $RESPONSE_IPA | grep -o -E 'https://files.catbox.moe/[^"]*')
+          echo "Uploaded .ipa artifact to $CATBOX_URL_IPA"
+      
+      - name: Create Release
+        if: ${{ inputs.create_release }}
+        id: create_release
+        uses: softprops/action-gh-release@v2.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT: ${{ inputs.create_release }}
+        with:
+          tag_name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          name: ${{steps.unzip_ipa.outputs.ipa_name}}_injected
+          files: |
+            main/packages/${{steps.unzip_ipa.outputs.ipa_name}}_injected.ipa
+          draft: ${{ env.DRAFT }}
