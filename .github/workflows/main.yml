@@ -175,8 +175,9 @@ jobs:
           mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
           unzip -q main/packages/IPA_OUT.zip -d main/packages
           APP_NAME=$(plutil -extract CFBundleName xml1 -o - main/packages/Payload/*.app/Info.plist | xmllint --xpath 'string(//plist/string)' -)
-          echo "==>App $APP_NAME Unziped!"
+          rm -rf main/packages/Payload/*.app/_CodeSignature/CodeResources
           echo "ipa_name=${APP_NAME}" >> $GITHUB_OUTPUT
+          echo "==>App $APP_NAME Unziped!"
             
       - name: Remove Watch Folder
         if: ${{ inputs.remove_watch }}
