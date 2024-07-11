@@ -174,22 +174,10 @@ jobs:
         run: |
           mv main/packages/IPA_OUT.ipa main/packages/IPA_OUT.zip
           unzip -q main/packages/IPA_OUT.zip -d main/packages
-          info_plist=$(find main/packages/Payload/*.app -name "Info.plist" | head -1)
-          if [ -n "$info_plist" ]; then
-            if /usr/libexec/PlistBuddy -c "Print CFBundleDisplayName" "$info_plist" >/dev/null 2>&1; then
-              ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleDisplayName" "$info_plist")
-            else
-              echo "Warning: CFBundleDisplayName does not exist. Trying CFBundleName..."
-              ipa_name=$(/usr/libexec/PlistBuddy -c "Print CFBundleName" "$info_plist")
-            fi
-            echo "==> $ipa_name Unzipped!"
-            echo "ipa_name=${ipa_name}" >> $GITHUB_OUTPUT
-            rm -f main/packages/Payload/*.app/_CodeSignature/CodeResources
-          else
-            echo "Error: Info.plist not found in Payload directory."
-            exit 1
-
-
+          APP_NAME=$(plutil -extract CFBundleName xml1 -o - main/packages/Payload/*.app/Info.plist | xmllint --xpath 'string(//plist/string)' -)
+          echo "Application Name: $APP_NAME"
+          echo "ipa_name=${APP_NAME}" >> $GITHUB_OUTPUT
+            
       - name: Remove Watch Folder
         if: ${{ inputs.remove_watch }}
         run: |
