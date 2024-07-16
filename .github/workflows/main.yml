@@ -13,13 +13,13 @@ on:
         
       decrypted_ipa_url:
         description: "The direct URL to the decrypted IPA"
-        default: "https://iosmod.net/IPAs/YouTube_19.23.3.ipa"
+        default: ""
         required: true
         type: string
         
       deb1_url:
         description: "The direct URL to the Tweak deb 1"
-        default: "https://iosmod.net/deb/com.iosmod.youtubepremium_1.6.6_iphoneos-arm.deb"
+        default: ""
         required: false
         type: string
       deb1_url_choose:
@@ -30,7 +30,7 @@ on:
 
       deb2_url:
         description: "The direct URL to the Tweak deb 2"
-        default: "https://iosmod.net/deb/com.ps.youpip_1.8.10_iphoneos-arm.deb"
+        default: ""
         required: false
         type: string
       deb2_url_choose:
@@ -41,7 +41,7 @@ on:
         
       deb3_url:
         description: "The direct URL to the Tweak deb 3"
-        default: "https://github.com/thaibm92/YTUHD/releases/download/v1.11.16/com.ps.ytuhd_1.5.3_iphoneos-arm.deb"
+        default: ""
         required: false
         type: string
       deb3_url_choose:
